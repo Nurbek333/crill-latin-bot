@@ -16,8 +16,7 @@ from filters.admin import IsBotAdminFilter
 from filters.check_sub_channel import IsCheckSubChannels
 from states.reklama import Adverts
 from keyboard_buttons import admin_keyboard
-from gtts import gTTS
-import os
+from criltolatin import latindan_crill, latindan_arab, latindan_kores
 
 ADMINS = config.ADMINS
 TOKEN = config.BOT_TOKEN
@@ -46,18 +45,23 @@ Botni ishlatganingiz uchun rahmat! 🎉
 """, parse_mode=ParseMode.HTML)
     except Exception as e:
         # logging.exception("Foydalanuvchini qo'shishda xatolik yuz berdi", e)
-        await message.answer(text="""Men [Bot nomi] botiman, sizga quyidagi funksiyalarni taqdim etaman:
+        await message.answer(text="""Salom! Men Transliteration Botman, sizga quyidagi funksiyalarni taqdim etaman:
 
-2. **/about** - Bot haqidagi to'liq ma'lumot va yaratuvchilar haqida.
-   
-3. **/help** - Botning qanday ishlashini tushuntiruvchi yordam xabari.
+1. **/about** - Bot haqidagi to'liq ma'lumot va yaratuvchilar haqida.
+2. **/help** - Botdan qanday foydalanishni tushuntiruvchi yordam xabari.
+3. **/crill** - Lotin matnini Kirill yozuviga aylantiradi.
+4. **/arab** - Lotin matnini Arab yozuviga aylantiradi.
+5. **/kores** - Lotin matnini Koreys yozuviga aylantiradi.
+                             
+Foydalanish tartibi:
+1. **/crill** - Lotin matnini Kirill yozuviga o‘zgartiradi.  
+   *Misol:* `/crill Salom` -> `Салом`
+2. **/arab** - Lotin matnini Arab yozuviga o‘zgartiradi.  
+   *Misol:* `/arab Salom` -> `سلام`
+3. **/kores** - Lotin matnini Koreys yozuviga o‘zgartiradi.  
+   *Misol:* `/kores Salom` -> `살롬`
 
-**Qanday foydalanish kerak:**
-- Ovozli xabarlarni yuborish uchun `/convert` komandasini matn bilan birga yuboring.
-
-Agar qo'shimcha savollar yoki yordam kerak bo'lsa, iltimos, [email:\nnurbekuktamov333@gmail.com/telegram username:\n@me_nurbek] orqali biz bilan bog'laning!
-
-Botni ishlatganingiz uchun rahmat! 🎉
+Matn yuboring va men uni tanlagan yozuvga transliteratsiya qilaman!
 """, parse_mode=ParseMode.HTML)
 
 @dp.message(IsCheckSubChannels())
@@ -73,44 +77,40 @@ async def kanalga_obuna(message: Message):
 
 @dp.message(Command("help"))
 async def help_commands(message: Message):
-    await message.answer("""👋 Salom! Men [Bot nomi] botiman. Sizga quyidagi funksiyalarni taqdim etaman:
+    await message.answer("""👋 Salom! Transliteration Botdan qanday foydalanishni bilib oling:
 
-1. **/start** - Botni ishga tushiradi va siz bilan salomlashadi.
-2. **/help** - Botning qanday ishlashini tushuntiruvchi yordam.
-3. **/about** - Bot yaratuvchilari va bot haqidagi tuliq malumotlar.
+1. **/crill** - Lotin matnini Kirill yozuviga o‘zgartiradi.  
+   *Misol:* `/crill Salom` -> `Салом`
+2. **/arab** - Lotin matnini Arab yozuviga o‘zgartiradi.  
+   *Misol:* `/arab Salom` -> `سلام`
+3. **/kores** - Lotin matnini Koreys yozuviga o‘zgartiradi.  
+   *Misol:* `/kores Salom` -> `살롬`
 
-📌 **Qanday foydalanish kerak:**
-- Matn yuboring va men uni ovozli xabarga aylantiraman.
+Matnni ushbu komandalar bilan yuboring va kerakli yozuvga transliteratsiya qiling!
 
-Agar qo'shimcha yordam kerak bo'lsa, iltimos, [email/telegram username] orqali biz bilan bog'laning!
+Agar qo'shimcha yordam yoki savollar bo'lsa, iltimos, [email:\nnurbekuktamov333@gmail.com/telegram:\n@me_nurbek] orqali biz bilan bog'laning!
 
-🔧 **Yordam uchun:** 
-- Muammo yoki savollar bo'lsa, yordam uchun [email/telegram username] bilan bog'laning.
-
-Rahmat, [Bot nomi]!
 """, parse_mode=ParseMode.HTML)
 
 @dp.message(Command("about"))
 async def about_commands(message: Message):
-    await message.answer("""📢 **/about** - Bot Haqida Ma'lumot
+    await message.answer("""📢 **Bot Haqida:**
 
-👋 **Salom! Men [Bot nomi] botiman.**
+👋 **Salom! Men Transliteration Botman.**
 
-**Bot Yaratuvchilari:**
-- **Yaratuvchi:** Nurbek Uktamov
-- **Tajriba:** Backend dasturchi, Django bo'yicha mutaxassis
-- **Maqsad:** Ushbu bot sizga matnni ovozga aylantirish va boshqa funktsiyalarni taqdim etish uchun yaratilgan.
+**Yaratuvchi:** Nurbek Uktamov  
+**Tajriba:** Backend dasturchi, Django bo'yicha mutaxassis  
+**Maqsad:** Ushbu bot sizga Lotin matnini Kirill, Arab, va Koreys yozuvlariga transliteratsiya qilish uchun yaratilgan.
 
-**Bot Haqida:**
-- **Maqsad:** [Bot nomi] bot sizning matnlaringizni ovozli xabarlarga aylantiradi. Har qanday matnni yuboring va men uni sizga ovozli xabar sifatida qaytaraman.
-- **Texnologiyalar:** Bot Python dasturlash tili yordamida yaratildi va `aiogram` kutubxonasi, `gTTS` (Google Text-to-Speech) kabi texnologiyalarni ishlatadi.
-- **Qanday Ishlaydi:** Siz matn yuborganingizda, bot uni ovozga aylantiradi va ovozli xabar sifatida yuboradi.
+**Texnologiyalar:**  
+- Python dasturlash tili  
+- `aiogram` kutubxonasi  
+- Maxsus transliteratsiya algoritmlari
 
-**Agar Qo'shimcha Ma'lumot yoki Yordam Kerak Bo'lsa:**
-- **Kontakt:** [nurbekuktamov@gmail.com]
-- **Websayt:** [nurbek333.pythonanywhere.com]
+**Kontakt:**  
+Email: nurbekuktamov333@gmail.com  
+Telegram: @me_nurbek
 
-Rahmat va botni ishlatganingiz uchun rahmat! 🎉
 """, parse_mode=ParseMode.HTML)
 
 @dp.message(Command("admin"), IsBotAdminFilter(ADMINS))
@@ -145,18 +145,40 @@ async def send_advert(message: Message, state: FSMContext):
     await message.answer(f"Reklama {count} ta foydalanuvchiga yuborildi", parse_mode=ParseMode.HTML)
     await state.clear()
 
-import io
-@dp.message(F.text)
-async def convert_text_to_speech(message: types.Message):
-    text = message.text
-    tts = gTTS(text=text, lang='en')
-    file_path = 'output.mp3'
-    tts.save(file_path)
 
-    with open(file_path, 'rb') as audio:
-        await message.reply_voice(voice=FSInputFile(file_path, filename="tts.mp3"))
+@dp.message(Command("crill"))
+async def convert_to_crill(message: Message):
+    input_text = message.text[len('/crill '):]  # Extract text after the command
+    logging.info(f"Extracted text for crill: {input_text}")
+    
+    if input_text:
+        crill_text = latindan_crill(input_text)
+        await message.answer(crill_text)
+    else:
+        await message.answer("Iltimos, /crill dan keyin matn kiriting.")
 
-    os.remove(file_path)
+@dp.message(Command("arab"))
+async def convert_to_arab(message: Message):
+    input_text = message.text[len('/arab '):]  # Extract text after the command
+    logging.info(f"Extracted text for arab: {input_text}")
+    
+    if input_text:
+        arab_text = latindan_arab(input_text)
+        await message.answer(arab_text)
+    else:
+        await message.answer("Iltimos, /arab dan keyin matn kiriting.")
+
+@dp.message(Command("kores"))
+async def convert_to_kores(message: Message):
+    input_text = message.text[len('/kores '):]  # Extract text after the command
+    logging.info(f"Extracted text for kores: {input_text}")
+    
+    if input_text:
+        kores_text = latindan_kores(input_text)
+        await message.answer(kores_text)
+    else:
+        await message.answer("Iltimos, /kores dan keyin matn kiriting.")
+
 
 @dp.startup()
 async def on_startup_notify(bot: Bot):
