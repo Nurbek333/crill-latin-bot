@@ -8,12 +8,60 @@ Transliteration Telegram Bot'iga xush kelibsiz! Ushbu bot yordamida Latin matnin
 - `/arab`: Latin matnini Arab yozuviga o'zgartiradi.
 - `/kores`: Latin matnini Koreys yozuviga o'zgartiradi.
 
-## Boshlash
 
-Botni ishlatishni boshlash uchun quyidagi qadamlarni bajaring:
+## Texnologiyalar
 
-### Repository'ni Klonlash
+- Python 3.7 yoki undan yuqori versiya
+- `aiogram` kutubxonasi
+- Maxsus transliteratsiya algoritmlari
+
+
+## O'rnatish
+
+1. GitHub repozitoriyasini klonlang:
+
+    ```bash
+    git clone https://github.com/Nurbek333/crill-latin-bot.git
+    cd your-repository
+    ```
+
+2. Virtual muhit yaratib, uni faollashtiring (ixtiyoriy):
+
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # Linux/MacOS
+    venv\Scripts\activate     # Windows
+    ```
+
+3. Zaruriy kutubxonalarni o'rnating:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4. `.env` faylini yaratib, Telegram bot tokenini qo'shing:
+
+    ```
+    BOT_TOKEN=your-telegram-bot-token
+    ```
+
+
+
+- **filters/**:
+  - `admin.py`: Adminlar uchun maxsus funksiyalarni filtrlaydigan kodlar joylashgan.
+  - `check_sub_channel.py`: Foydalanuvchining kerakli kanalga obuna bo‘lganligini tekshiruvchi kodlar.
+
+- **keyboard_buttons/**:
+  - `admin_keyboard.py`: Bot interfeysida adminlar uchun klaviatura tugmalari sozlanadi.
+
+- **menucommands/**:
+  - `set_bot_commands.py`: Telegram bot menyusidagi buyruqlarni o'rnatish uchun skript.
+ 
+
+## Ishga tushirish
+
+Botni ishga tushurish uchun:
 
 ```bash
-git clone https://github.com/your-username/transliteration-bot.git
-cd transliteration-bot
+python bot.py
+
