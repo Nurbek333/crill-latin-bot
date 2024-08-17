@@ -17,6 +17,8 @@ from filters.check_sub_channel import IsCheckSubChannels
 from states.reklama import Adverts
 from keyboard_buttons import admin_keyboard
 from criltolatin import latindan_crill, latindan_arab, latindan_kores
+from aiogram.fsm.state import State, StatesGroup
+
 
 ADMINS = config.ADMINS
 TOKEN = config.BOT_TOKEN
@@ -146,38 +148,53 @@ async def send_advert(message: Message, state: FSMContext):
     await state.clear()
 
 
+# Define States
+class TranslationStates(StatesGroup):
+    waiting_for_crill_text = State()
+    waiting_for_arab_text = State()
+    waiting_for_kores_text = State()
+
+class TranslationStates(StatesGroup):
+    waiting_for_text = State()
+
+
+
 @dp.message(Command("crill"))
-async def convert_to_crill(message: Message):
-    input_text = message.text[len('/crill '):]  # Extract text after the command
-    logging.info(f"Extracted text for crill: {input_text}")
-    
-    if input_text:
-        crill_text = latindan_crill(input_text)
-        await message.answer(crill_text)
-    else:
-        await message.answer("Iltimos, /crill dan keyin matn kiriting.")
+async def request_crill_text(message: Message, state: FSMContext):
+    await message.answer("Matnni yuboring, men uni Kirill yozuviga o'zgartiraman.")
+    await state.set_state(TranslationStates.waiting_for_text)
+    await state.update_data(translation_type='crill')
 
 @dp.message(Command("arab"))
-async def convert_to_arab(message: Message):
-    input_text = message.text[len('/arab '):]  # Extract text after the command
-    logging.info(f"Extracted text for arab: {input_text}")
-    
-    if input_text:
-        arab_text = latindan_arab(input_text)
-        await message.answer(arab_text)
-    else:
-        await message.answer("Iltimos, /arab dan keyin matn kiriting.")
+async def request_arab_text(message: Message, state: FSMContext):
+    await message.answer("Matnni yuboring, men uni Arab yozuviga o'zgartiraman.")
+    await state.set_state(TranslationStates.waiting_for_text)
+    await state.update_data(translation_type='arab')
 
 @dp.message(Command("kores"))
-async def convert_to_kores(message: Message):
-    input_text = message.text[len('/kores '):]  # Extract text after the command
-    logging.info(f"Extracted text for kores: {input_text}")
-    
-    if input_text:
-        kores_text = latindan_kores(input_text)
-        await message.answer(kores_text)
+async def request_kores_text(message: Message, state: FSMContext):
+    await message.answer("Matnni yuboring, men uni Koreys yozuviga o'zgartiraman.")
+    await state.set_state(TranslationStates.waiting_for_text)
+    await state.update_data(translation_type='kores')
+
+@dp.message(TranslationStates.waiting_for_text)
+async def handle_text_input(message: Message, state: FSMContext):
+    user_data = await state.get_data()
+    translation_type = user_data.get('translation_type')
+    input_text = message.text.lower()  # Convert text to lowercase
+
+    if translation_type == 'crill':
+        result_text = latindan_crill(input_text)
+    elif translation_type == 'arab':
+        result_text = latindan_arab(input_text)
+    elif translation_type == 'kores':
+        result_text = latindan_kores(input_text)
     else:
-        await message.answer("Iltimos, /kores dan keyin matn kiriting.")
+        result_text = "Noma'lum tarjima turi."
+
+    await message.answer(result_text)
+    # Do not clear state here; keep the state to handle the next text input
+
 
 
 @dp.startup()
