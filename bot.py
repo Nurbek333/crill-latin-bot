@@ -38,6 +38,11 @@ async def start_command(message: Message):
     telegram_id = message.from_user.id
     try:
         db.add_user(full_name=full_name, telegram_id=telegram_id)  # Add user to the database
+        
+        # Bot start bosilgandan keyin oldingi xabarlarni o'chirish
+        await message.delete()
+        
+        # Yangi xabar va tugmalar
         await message.answer(
             text="""Men [Bot nomi] botiman, sizga quyidagi funksiyalarni taqdim etaman:
 
@@ -52,7 +57,6 @@ Agar qo'shimcha savollar yoki yordam kerak bo'lsa, iltimos, [email:\nnurbekuktam
 Botni ishlatganingiz uchun rahmat! 🎉
 """, parse_mode=ParseMode.HTML, reply_markup=get_translation_buttons())
     except Exception as e:
-        # logging.exception("Foydalanuvchini qo'shishda xatolik yuz berdi", e)
         await message.answer(text="""Men [Bot nomi] botiman, sizga quyidagi funksiyalarni taqdim etaman:
 
 2. **/about** - Bot haqidagi to'liq ma'lumot va yaratuvchilar haqida.
@@ -68,6 +72,9 @@ Botni ishlatganingiz uchun rahmat! 🎉
 
 @dp.callback_query(F.data.in_(['crill', 'arab', 'kores', 'cancel']))
 async def handle_translation_callback(callback: CallbackQuery, state: FSMContext):
+    # Oldingi xabarlarni o'chirish
+    await callback.message.delete()
+    
     if callback.data == 'cancel':
         await callback.message.answer("Transliteratsiya bekor qilindi. Endi yangi transliteratsiya tilini tanlashingiz mumkin.", reply_markup=get_translation_buttons())
         await state.clear()  # Clear the state if user cancels
@@ -83,6 +90,9 @@ async def handle_text_input(message: Message, state: FSMContext):
     translation_type = user_data.get('translation_type')
     input_text = message.text.lower()  # Convert text to lowercase
 
+    # Oldingi xabarlarni o'chirish
+    await message.delete()
+
     if translation_type == 'crill':
         result_text = latindan_crill(input_text)
     elif translation_type == 'arab':
@@ -92,12 +102,12 @@ async def handle_text_input(message: Message, state: FSMContext):
     else:
         result_text = "Noma'lum tarjima turi."
 
-    await message.answer(result_text)
-    # Send a follow-up message with the cancel button
+    # Yangi xabar va tugma yuborish
     cancel_button = InlineKeyboardButton(text="❌ Bekor qilish", callback_data='cancel')
     keyboard = InlineKeyboardBuilder().add(cancel_button).as_markup()
-    await message.answer("Yana matn yuborishingiz mumkin yoki ❌ Bekor qilish tugmasini bosing. Va yangi transliteratsiya tilini tanlang", reply_markup=keyboard)
-    
+
+    # Tarjima qilingan matn va bekor qilish tugmasini birga yuborish
+    await message.answer(result_text, reply_markup=keyboard)
 
 @dp.message(IsCheckSubChannels())
 async def kanalga_obuna(message: Message):
