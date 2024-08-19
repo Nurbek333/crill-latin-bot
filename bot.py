@@ -34,8 +34,16 @@ dp = Dispatcher(storage=MemoryStorage())
 
 @dp.message(CommandStart())
 async def start_command(message: Message):
-    full_name = message.from_user.full_name
+    # Foydalanuvchi haqida ma'lumotlarni loglash
+    print(f"User Info: {message.from_user}")
+
+    # Foydalanuvchining ismi va familiyasini olish
+    first_name = message.from_user.first_name or "Ism"
+    last_name = message.from_user.last_name or ""
+    full_name = f"{first_name} {last_name}".strip()
+
     telegram_id = message.from_user.id
+
     try:
         db.add_user(full_name=full_name, telegram_id=telegram_id)  # Add user to the database
         
@@ -44,28 +52,36 @@ async def start_command(message: Message):
         
         # Yangi xabar va tugmalar
         await message.answer(
-            text="""Men [Bot nomi] botiman, sizga quyidagi funksiyalarni taqdim etaman:
+            text="""👋 Salom!
 
-2. **/about** - Bot haqidagi to'liq ma'lumot va yaratuvchilar haqida.
-3. **/help** - Botning qanday ishlashini tushuntiruvchi yordam xabari.
+Men [Bot nomi] botiman. Sizga quyidagi funksiyalarni taqdim etaman:
 
-**Qanday foydalanish kerak:**
-- Ovozli xabarlarni yuborish uchun botga text jo'nating bot siz ovozli habarni tashlaydi.
+1. **/crill** - Lotin matnini Kirill yozuviga o‘zgartiradi.
+2. **/arab** - Lotin matnini Arab yozuviga o‘zgartiradi.
+3. **/kores** - Lotin matnini Koreys yozuviga o‘zgartiradi.
 
-Agar qo'shimcha savollar yoki yordam kerak bo'lsa, iltimos, [email:\nnurbekuktamov333@gmail.com/telegram username:\n@me_nurbek] orqali biz bilan bog'laning!
+Matnni yuboring va kerakli yozuvga transliteratsiya qiling!
+
+Agar qo'shimcha savollar yoki yordam kerak bo'lsa, iltimos,  
+- Email: nurbekuktamov333@gmail.com  
+- Telegram: @me_nurbek orqali biz bilan bog'laning!
 
 Botni ishlatganingiz uchun rahmat! 🎉
 """, parse_mode=ParseMode.HTML, reply_markup=get_translation_buttons())
     except Exception as e:
-        await message.answer(text="""Men [Bot nomi] botiman, sizga quyidagi funksiyalarni taqdim etaman:
+        await message.answer(text="""👋 Salom!
 
-2. **/about** - Bot haqidagi to'liq ma'lumot va yaratuvchilar haqida.
-3. **/help** - Botning qanday ishlashini tushuntiruvchi yordam xabari.
+Men [Bot nomi] botiman. Sizga quyidagi funksiyalarni taqdim etaman:
 
-**Qanday foydalanish kerak:**
-- Ovozli xabarlarni yuborish uchun botga text jo'nating bot siz ovozli habarni tashlaydi.
+1. **/crill** - Lotin matnini Kirill yozuviga o‘zgartiradi.
+2. **/arab** - Lotin matnini Arab yozuviga o‘zgartiradi.
+3. **/kores** - Lotin matnini Koreys yozuviga o‘zgartiradi.
 
-Agar qo'shimcha savollar yoki yordam kerak bo'lsa, iltimos, [email:\nnurbekuktamov333@gmail.com/telegram username:\n@me_nurbek] orqali biz bilan bog'laning!
+Matnni yuboring va kerakli yozuvga transliteratsiya qiling!
+
+Agar qo'shimcha savollar yoki yordam kerak bo'lsa, iltimos,   
+- Email: nurbekuktamov333@gmail.com  
+- Telegram: @me_nurbek orqali biz bilan bog'laning!
 
 Botni ishlatganingiz uchun rahmat! 🎉
 """, parse_mode=ParseMode.HTML, reply_markup=get_translation_buttons())
@@ -103,7 +119,7 @@ async def handle_text_input(message: Message, state: FSMContext):
         result_text = "Noma'lum tarjima turi."
 
     # Yangi xabar va tugma yuborish
-    cancel_button = InlineKeyboardButton(text="❌ Bekor qilish", callback_data='cancel')
+    cancel_button = InlineKeyboardButton(text="Tilni tanlash", callback_data='cancel')
     keyboard = InlineKeyboardBuilder().add(cancel_button).as_markup()
 
     # Tarjima qilingan matn va bekor qilish tugmasini birga yuborish
@@ -122,7 +138,7 @@ async def kanalga_obuna(message: Message):
 
 @dp.message(Command("help"))
 async def help_commands(message: Message):
-    await message.answer("""👋 Salom! Transliteration Botdan qanday foydalanishni bilib oling:
+    await message.answer("""👋 **Salom! Transliteration Botdan qanday foydalanishni bilib oling:**
 
 1. **/crill** - Lotin matnini Kirill yozuviga o‘zgartiradi.  
    *Misol:* `/crill Salom` -> `Салом`
@@ -133,7 +149,10 @@ async def help_commands(message: Message):
 
 Matnni ushbu komandalar bilan yuboring va kerakli yozuvga transliteratsiya qiling!
 
-Agar qo'shimcha yordam yoki savollar bo'lsa, iltimos, [email:\nnurbekuktamov333@gmail.com/telegram:\n@me_nurbek] orqali biz bilan bog'laning!
+Agar qo'shimcha yordam yoki savollar bo'lsa, iltimos, 
+                         
+- Email: nurbekuktamov333@gmail.com  
+- Telegram: @me_nurbek orqali biz bilan bog'laning!
 
 """, parse_mode=ParseMode.HTML)
 
@@ -144,7 +163,7 @@ async def about_commands(message: Message):
 👋 **Salom! Men Transliteration Botman.**
 
 **Yaratuvchi:** Nurbek Uktamov  
-**Tajriba:** Backend dasturchi, Django bo'yicha mutaxassis  
+**Kasbi:** Backend dasturchi, Django bo'yicha mutaxassis  
 **Maqsad:** Ushbu bot sizga Lotin matnini Kirill, Arab, va Koreys yozuvlariga transliteratsiya qilish uchun yaratilgan.
 
 **Texnologiyalar:**  
@@ -153,10 +172,11 @@ async def about_commands(message: Message):
 - Maxsus transliteratsiya algoritmlari
 
 **Kontakt:**  
-Email: nurbekuktamov333@gmail.com  
-Telegram: @me_nurbek
+- Email: nurbekuktamov333@gmail.com  
+- Telegram: @me_nurbek
 
-""", parse_mode=ParseMode.HTML)
+""",
+ parse_mode=ParseMode.HTML)
 
 @dp.message(Command("admin"), IsBotAdminFilter(ADMINS))
 async def is_admin(message: Message):

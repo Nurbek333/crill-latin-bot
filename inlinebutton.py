@@ -10,7 +10,7 @@ def get_translation_buttons():
     ]
 
     # Cancel button
-    cancel_button = InlineKeyboardButton(text="❌ Bekor qilish", callback_data='cancel')
+    cancel_button = InlineKeyboardButton(text="Tilni almashtirish", callback_data='cancel')
 
     # Create an InlineKeyboardBuilder instance
     keyboard = InlineKeyboardBuilder()
@@ -18,8 +18,7 @@ def get_translation_buttons():
     # Add translation buttons to the keyboard
     keyboard.add(*translation_buttons)
     
-    # Add the cancel button on a new row
-    keyboard.add(cancel_button)
+ 
 
     # Return the keyboard as a markup
     return keyboard.as_markup()
