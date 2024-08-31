@@ -12,13 +12,16 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from data import config
 from menucommands.set_bot_commands import set_default_commands
 from baza.sqlite import Database
-from filters.admin import IsBotAdminFilter
+from filters.admin import IsBotAdminFilter,AdminStates
 from filters.check_sub_channel import IsCheckSubChannels
 from states.reklama import Adverts
 from keyboard_buttons import admin_keyboard
 from criltolatin import latindan_crill, latindan_arab, latindan_kores
 from aiogram.fsm.state import State, StatesGroup
-
+from filters.admin import IsBotAdminFilter
+from aiogram import types
+import logging
+from aiogram.types import CallbackQuery, ContentType
 # Import the inline buttons from the separate file
 from inlinebutton import get_translation_buttons
 
@@ -52,63 +55,103 @@ async def start_command(message: Message):
         
         # Yangi xabar va tugmalar
         await message.answer(
-            text="""👋 Salom!
+            text="""<b>🤖 Assalomu alaykum!</b> <b>SIfatDev Transliteratsiya Botiga xush kelibsiz!</b> 🎉
 
-Men [Bot nomi] botiman. Sizga quyidagi funksiyalarni taqdim etaman:
+Bu bot yordamida siz matnlarni turli alfavitlarga <b>transliteratsiya</b> qilishingiz mumkin. Hozirda quyidagi imkoniyatlar mavjud:
+- <b>Latin ➡️ Kirill</b>
+- <b>Latin ➡️ Arab</b>
+- <b>Latin ➡️ Koreys</b>
 
-1. **/crill** - Lotin matnini Kirill yozuviga o‘zgartiradi.
-2. **/arab** - Lotin matnini Arab yozuviga o‘zgartiradi.
-3. **/kores** - Lotin matnini Koreys yozuviga o‘zgartiradi.
+<b>Qanday boshlash kerak?</b> 
+1️⃣ Matnni kiriting va o'zingiz xohlagan alfavitga transliteratsiya qilish uchun mos buyrug'ini tanlang.
+2️⃣ Barcha oldingi xabarlarni o'chirish uchun <i>"Cancel"</i> tugmasidan foydalaning.
 
-Matnni yuboring va kerakli yozuvga transliteratsiya qiling!
+Agar qo'shimcha yordam kerak bo'lsa, <b>/help</b> buyrug'ini bosing. <b>SIfatDev</b> sizga yordam berishga tayyor! 🚀
 
-Agar qo'shimcha savollar yoki yordam kerak bo'lsa, iltimos,  
-- Email: nurbekuktamov333@gmail.com  
-- Telegram: @me_nurbek orqali biz bilan bog'laning!
-
-Botni ishlatganingiz uchun rahmat! 🎉
-""", parse_mode=ParseMode.HTML, reply_markup=get_translation_buttons())
+""", parse_mode="html", reply_markup=get_translation_buttons())
     except Exception as e:
-        await message.answer(text="""👋 Salom!
+        await message.answer(text="""<b>🤖 Assalomu alaykum!</b> <b>SIfatDev Transliteratsiya Botiga xush kelibsiz!</b> 🎉
 
-Men [Bot nomi] botiman. Sizga quyidagi funksiyalarni taqdim etaman:
+Bu bot yordamida siz matnlarni turli alfavitlarga <b>transliteratsiya</b> qilishingiz mumkin. Hozirda quyidagi imkoniyatlar mavjud:
+- <b>Latin ➡️ Kirill</b>
+- <b>Latin ➡️ Arab</b>
+- <b>Latin ➡️ Koreys</b>
 
-1. **/crill** - Lotin matnini Kirill yozuviga o‘zgartiradi.
-2. **/arab** - Lotin matnini Arab yozuviga o‘zgartiradi.
-3. **/kores** - Lotin matnini Koreys yozuviga o‘zgartiradi.
+<b>Qanday boshlash kerak?</b> 
+1️⃣ Matnni kiriting va o'zingiz xohlagan alfavitga transliteratsiya qilish uchun mos buyrug'ini tanlang.
+2️⃣ Barcha oldingi xabarlarni o'chirish uchun <i>"Cancel"</i> tugmasidan foydalaning.
 
-Matnni yuboring va kerakli yozuvga transliteratsiya qiling!
+Agar qo'shimcha yordam kerak bo'lsa, <b>/help</b> buyrug'ini bosing. <b>SIfatDev</b> sizga yordam berishga tayyor! 🚀
 
-Agar qo'shimcha savollar yoki yordam kerak bo'lsa, iltimos,   
-- Email: nurbekuktamov333@gmail.com  
-- Telegram: @me_nurbek orqali biz bilan bog'laning!
+""", parse_mode="html", reply_markup=get_translation_buttons())
+        
 
-Botni ishlatganingiz uchun rahmat! 🎉
-""", parse_mode=ParseMode.HTML, reply_markup=get_translation_buttons())
+@dp.message(Command("help"))
+async def help_commands(message: Message):
+    await message.answer("""<b>🆘 Yordam kerakmi?</b> <b>SIfatDev Transliteratsiya Botidan foydalanish bo'yicha ko'rsatmalar:</b>
+
+Bu bot orqali matnlarni turli alfavitlarga o'gira olasiz. Quyidagi buyruqlardan foydalaning:
+1️⃣ <b>/crill</b> - Latin matnini <b>Kirill</b> alifbosiga o'giradi.
+2️⃣ <b>/arab</b> - Latin matnini <b>Arab</b> alifbosiga o'giradi.
+3️⃣ <b>/kores</b> - Latin matnini <b>Koreys</b> yozuviga o'giradi.
+
+<b>Qanday foydalanish kerak?</b>
+1️⃣ Kerakli buyruqni tanlang.
+2️⃣ Matnni kiriting va natijani oling.
+
+Agar qo'shimcha ma'lumot kerak bo'lsa, <b>/about</b> buyrug'idan foydalaning yoki bizga murojaat qiling. 😊 
+
+""", parse_mode="html", reply_markup=get_translation_buttons())
+
+@dp.message(Command("about"))
+async def about_commands(message: Message):
+    await message.answer("""<b>ℹ️ SIfatDev Transliteratsiya Bot haqida:</b>
+
+<b>SIfatDev Transliteratsiya Bot</b> matnlarni bir alfavitdan boshqa alfavitga o'zgartirish uchun yaratilgan. Bu bot sizga quyidagi tillar o'rtasida matn transliteratsiyasini amalga oshirish imkoniyatini beradi:
+- <b>Latin ➡️ Kirill</b>
+- <b>Latin ➡️ Arab</b>
+- <b>Latin ➡️ Koreys</b>
+
+<b>Nega SIfatDev Botni tanlash kerak?</b>
+- Matnlarni tez va aniq transliteratsiya qilish.
+- Oson foydalanish va intuitiv interfeys.
+- Har doim yangi funksiyalar va yangilanishlar.
+
+Har qanday savol yoki takliflar uchun biz bilan bog'laning. <b>SifatDev</b> sizga sifatli transliteratsiya xizmatlarini taqdim etadi! 😊
+
+<b>SIfatDev — Sizning ishonchli transliteratsiya yordamchingiz! 🔄</b>
+
+
+""",
+ parse_mode='html', reply_markup=get_translation_buttons())
 
 @dp.callback_query(F.data.in_(['crill', 'arab', 'kores', 'cancel']))
 async def handle_translation_callback(callback: CallbackQuery, state: FSMContext):
-    # Oldingi xabarlarni o'chirish
-    await callback.message.delete()
-    
     if callback.data == 'cancel':
-        await callback.message.answer("Transliteratsiya bekor qilindi. Endi yangi transliteratsiya tilini tanlashingiz mumkin.", reply_markup=get_translation_buttons())
-        await state.clear()  # Clear the state if user cancels
+        # Bekor qilish haqida xabar yuborish va tilni qayta tanlash tugmalarini ko'rsatish
+        await callback.message.answer(
+            "<b>❌ Transliteratsiya bekor qilindi.</b> \n\nTilni qayta tanlash uchun quyidagi tugmalardan foydalaning.", 
+            reply_markup=get_translation_buttons(), parse_mode='html'
+        )
+        await state.clear()  # Foydalanuvchi bekor qilganida holatni tozalash
     else:
-        await callback.message.answer("Matnni yuboring:")
+        # Tanlangan transliteratsiya turini saqlash va matn kiritishni so'rash
         await state.set_state(TranslationStates.waiting_for_text)
         await state.update_data(translation_type=callback.data)
-        await callback.answer()  # Acknowledge the callback to prevent timeout
+        
+        await callback.message.answer(
+            "<b>📜 Iltimos, matnni yuboring.</b> \nMen uni siz tanlagan tilga transliteratsiya qilib beraman!", 
+            parse_mode='html'
+        )
+        await callback.answer()
 
 @dp.message(TranslationStates.waiting_for_text)
 async def handle_text_input(message: Message, state: FSMContext):
     user_data = await state.get_data()
     translation_type = user_data.get('translation_type')
-    input_text = message.text.lower()  # Convert text to lowercase
+    input_text = message.text.lower()
 
-    # Oldingi xabarlarni o'chirish
-    await message.delete()
-
+    # Tanlangan turga qarab transliteratsiya qilish
     if translation_type == 'crill':
         result_text = latindan_crill(input_text)
     elif translation_type == 'arab':
@@ -116,14 +159,18 @@ async def handle_text_input(message: Message, state: FSMContext):
     elif translation_type == 'kores':
         result_text = latindan_kores(input_text)
     else:
-        result_text = "Noma'lum tarjima turi."
+        result_text = "<b>⚠️ Noma'lum tarjima turi.</b>"
 
-    # Yangi xabar va tugma yuborish
-    cancel_button = InlineKeyboardButton(text="Tilni tanlash", callback_data='cancel')
+    # Tilni qayta tanlash uchun tugma yaratish
+    cancel_button = InlineKeyboardButton(text="🔄 Tilni qayta tanlash", callback_data='cancel')
     keyboard = InlineKeyboardBuilder().add(cancel_button).as_markup()
 
-    # Tarjima qilingan matn va bekor qilish tugmasini birga yuborish
-    await message.answer(result_text, reply_markup=keyboard)
+    # Translatsiya natijasini yuborish
+    await message.answer(
+        f"<b>📝 Transliteratsiya natijasi:</b> \n\n{result_text}", 
+        reply_markup=keyboard, parse_mode='html'
+    )
+
 
 @dp.message(IsCheckSubChannels())
 async def kanalga_obuna(message: Message):
@@ -135,48 +182,6 @@ async def kanalga_obuna(message: Message):
     inline_channel.adjust(1, repeat=True)
     button = inline_channel.as_markup()
     await message.answer(f"{text} kanallarga a'zo bo'ling", reply_markup=button)
-
-@dp.message(Command("help"))
-async def help_commands(message: Message):
-    await message.answer("""👋 **Salom! Transliteration Botdan qanday foydalanishni bilib oling:**
-
-1. **/crill** - Lotin matnini Kirill yozuviga o‘zgartiradi.  
-   *Misol:* `/crill Salom` -> `Салом`
-2. **/arab** - Lotin matnini Arab yozuviga o‘zgartiradi.  
-   *Misol:* `/arab Salom` -> `سلام`
-3. **/kores** - Lotin matnini Koreys yozuviga o‘zgartiradi.  
-   *Misol:* `/kores Salom` -> `살롬`
-
-Matnni ushbu komandalar bilan yuboring va kerakli yozuvga transliteratsiya qiling!
-
-Agar qo'shimcha yordam yoki savollar bo'lsa, iltimos, 
-                         
-- Email: nurbekuktamov333@gmail.com  
-- Telegram: @me_nurbek orqali biz bilan bog'laning!
-
-""", parse_mode=ParseMode.HTML)
-
-@dp.message(Command("about"))
-async def about_commands(message: Message):
-    await message.answer("""📢 **Bot Haqida:**
-
-👋 **Salom! Men Transliteration Botman.**
-
-**Yaratuvchi:** Nurbek Uktamov  
-**Kasbi:** Backend dasturchi, Django bo'yicha mutaxassis  
-**Maqsad:** Ushbu bot sizga Lotin matnini Kirill, Arab, va Koreys yozuvlariga transliteratsiya qilish uchun yaratilgan.
-
-**Texnologiyalar:**  
-- Python dasturlash tili  
-- `aiogram` kutubxonasi  
-- Maxsus transliteratsiya algoritmlari
-
-**Kontakt:**  
-- Email: nurbekuktamov333@gmail.com  
-- Telegram: @me_nurbek
-
-""",
- parse_mode=ParseMode.HTML)
 
 @dp.message(Command("admin"), IsBotAdminFilter(ADMINS))
 async def is_admin(message: Message):
@@ -211,25 +216,179 @@ async def send_advert(message: Message, state: FSMContext):
     await state.clear()
 
 
+
+
+
+
+
+# Define the states for admin functionality
+class AdminStates(StatesGroup):
+    waiting_for_admin_message = State()
+    waiting_for_reply_message = State()
+
+
+
+
+
+# Callback query handler for 'savol_takliflar' button
+@dp.callback_query(lambda c: c.data == 'savol_takliflar')
+async def handle_savol_takliflar(callback_query: CallbackQuery, state: FSMContext):
+    # Foydalanuvchiga admin uchun xabar yuborish uchun taklif qiluvchi matn
+    await callback_query.message.answer(
+        "<b>📩 Sizning fikr va savollaringiz biz uchun muhim!</b>\n\n"
+        "Iltimos, admin uchun xabar yuboring. Sizning savolingiz yoki taklifingiz "
+        "tez orada ko'rib chiqiladi va sizga javob beriladi.\n\n"
+        "<i>Matn, rasm, audio yoki boshqa turdagi fayllarni yuborishingiz mumkin.</i>",
+        parse_mode='html'
+    )
+    await state.set_state(AdminStates.waiting_for_admin_message)
+    await callback_query.answer()
+
+# Handle messages sent by the user for the admin
+@dp.message(AdminStates.waiting_for_admin_message, F.content_type.in_([
+    ContentType.TEXT, ContentType.AUDIO, ContentType.VOICE, ContentType.VIDEO,
+    ContentType.PHOTO, ContentType.ANIMATION, ContentType.STICKER, 
+    ContentType.LOCATION, ContentType.DOCUMENT, ContentType.CONTACT,
+    ContentType.VIDEO_NOTE
+]))
+async def handle_admin_message(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+    username = message.from_user.username
+    first_name = message.from_user.first_name
+    last_name = message.from_user.last_name or ""
+
+    # Foydalanuvchi ma'lumotlarini identifikatsiya qilish
+    if username:
+        user_identifier = f"@{username}"
+    else:
+        user_identifier = f"{first_name} {last_name}".strip()
+
+    # Har bir admin uchun foydalanuvchi xabarini yuborish
+    for admin_id in config.ADMINS:
+        try:
+            if message.video_note:
+                await bot.send_video_note(
+                    admin_id,
+                    message.video_note.file_id,
+                )
+            elif message.text:
+                await bot.send_message(
+                    admin_id,
+                    f"<b>Foydalanuvchi:</b> {user_identifier}\n\n"
+                    f"<b>Xabar:</b>\n{message.text}",
+                    parse_mode='html'
+                )
+            elif message.audio:
+                await bot.send_audio(
+                    admin_id,
+                    message.audio.file_id,
+                    caption=f"<b>Foydalanuvchi:</b> {user_identifier}\n\n<b>Audio xabar</b>",
+                    parse_mode='html'
+                )
+            elif message.voice:
+                await bot.send_voice(
+                    admin_id,
+                    message.voice.file_id,
+                    caption=f"<b>Foydalanuvchi:</b> {user_identifier}\n\n<b>Ovozli xabar</b>",
+                    parse_mode='html'
+                )
+            elif message.video:
+                await bot.send_video(
+                    admin_id,
+                    message.video.file_id,
+                    caption=f"<b>Foydalanuvchi:</b> {user_identifier}\n\n<b>Video xabar</b>",
+                    parse_mode='html'
+                )
+            elif message.photo:
+                await bot.send_photo(
+                    admin_id,
+                    message.photo[-1].file_id,
+                    caption=f"<b>Foydalanuvchi:</b> {user_identifier}\n\n<b>Rasm xabar</b>",
+                    parse_mode='html'
+                )
+            elif message.animation:
+                await bot.send_animation(
+                    admin_id,
+                    message.animation.file_id,
+                    caption=f"<b>Foydalanuvchi:</b> {user_identifier}\n\n<b>GIF xabar</b>",
+                    parse_mode='html'
+                )
+            elif message.sticker:
+                await bot.send_sticker(
+                    admin_id,
+                    message.sticker.file_id,
+                )
+            elif message.location:
+                await bot.send_location(
+                    admin_id,
+                    latitude=message.location.latitude,
+                    longitude=message.location.longitude,
+                )
+            elif message.document:
+                await bot.send_document(
+                    admin_id,
+                    message.document.file_id,
+                    caption=f"<b>Foydalanuvchi:</b> {user_identifier}\n\n<b>Hujjat xabar</b>",
+                    parse_mode='html'
+                )
+            elif message.contact:
+                await bot.send_contact(
+                    admin_id,
+                    phone_number=message.contact.phone_number,
+                    first_name=message.contact.first_name,
+                    last_name=message.contact.last_name or "",
+                )
+        except Exception as e:
+            logging.error(f"Error sending message to admin {admin_id}: {e}")
+
+    # Foydalanuvchiga xabar yuborish
+    await state.clear()
+    await bot.send_message(
+        user_id,
+        "<b>✅ Xabaringiz muvaffaqiyatli yuborildi!</b>\n\n"
+        "Admin tez orada siz bilan bog'lanadi. Sizning savolingiz yoki taklifingiz "
+        "biz uchun juda muhim. Iltimos, sabr qiling va javobni kuting.",
+        parse_mode='html'
+    )
+
+
+
+
+
 # Define States
 class TranslationStates(StatesGroup):
     waiting_for_text = State()
 
+# Bot ishga tushganda barcha adminlarni xabardor qilish
 @dp.startup()
 async def on_startup_notify(bot: Bot):
     for admin in ADMINS:
         try:
-            await bot.send_message(chat_id=int(admin), text="Bot ishga tushdi")
+            await bot.send_message(
+                chat_id=int(admin),
+                text="<b>🔔 Bot muvaffaqiyatli ishga tushdi!</b>\n\n"
+                     "Bot endi to'liq faol va foydalanuvchilar bilan muloqotga tayyor. "
+                     "Agar biror bir muammo yuzaga kelsa, tezda xabar bering.",
+                parse_mode='html'
+            )
         except Exception as err:
-            logging.exception(err)
+            logging.exception(f"Admin {admin} uchun xabar yuborishda xatolik yuz berdi: {err}")
 
+# Bot ishdan to'xtaganda barcha adminlarni xabardor qilish
 @dp.shutdown()
 async def off_startup_notify(bot: Bot):
     for admin in ADMINS:
         try:
-            await bot.send_message(chat_id=int(admin), text="Bot ishdan to'xtadi!")
+            await bot.send_message(
+                chat_id=int(admin),
+                text="<b>⛔️ Bot ishdan to'xtadi!</b>\n\n"
+                     "Bot faoliyati to'xtatildi. Agar bu rejalashtirilmagan bo'lsa, "
+                     "iltimos, darhol tekshiring va botni qayta ishga tushiring.",
+                parse_mode='html'
+            )
         except Exception as err:
-            logging.exception(err)
+            logging.exception(f"Admin {admin} uchun xabar yuborishda xatolik yuz berdi: {err}")
+
 
 def setup_middlewares(dispatcher: Dispatcher, bot: Bot) -> None:
     from middlewares.throttling import ThrottlingMiddleware

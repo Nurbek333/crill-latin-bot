@@ -2,23 +2,24 @@ from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 def get_translation_buttons():
-    # Translation options
+    # Lotin matnlarini turli yozuvlarga tarjima qilish variantlari
     translation_buttons = [
-        InlineKeyboardButton(text="Кирилл", callback_data='crill'),
-        InlineKeyboardButton(text="Араб", callback_data='arab'),
-        InlineKeyboardButton(text="Корея", callback_data='kores')
+        InlineKeyboardButton(text="🔤 Lotin -> Кирилл", callback_data='crill'),
+        InlineKeyboardButton(text="🔤 Lotin -> Arab", callback_data='arab'),
+        InlineKeyboardButton(text="🔤 Lotin -> Koreys", callback_data='kores')
     ]
 
-    # Cancel button
-    cancel_button = InlineKeyboardButton(text="Tilni almashtirish", callback_data='cancel')
+    # Savollar va takliflar tugmasi
+    savol_takliflar_button = InlineKeyboardButton(text="✉️ Savollar va takliflar", callback_data='savol_takliflar')
 
-    # Create an InlineKeyboardBuilder instance
+    # InlineKeyboardBuilder yordamida klaviatura yaratish
     keyboard = InlineKeyboardBuilder()
 
-    # Add translation buttons to the keyboard
-    keyboard.add(*translation_buttons)
-    
- 
+    # Tarjima tugmalarini bir qatorda joylashtirish
+    keyboard.row(*translation_buttons)
 
-    # Return the keyboard as a markup
+    # Savollar va takliflar tugmasini yangi qatorda joylashtirish
+    keyboard.row(savol_takliflar_button)
+
+    # Klaviaturani markup sifatida qaytarish
     return keyboard.as_markup()
