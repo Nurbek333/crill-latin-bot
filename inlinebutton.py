@@ -6,7 +6,6 @@ def get_translation_buttons():
     translation_buttons = [
         InlineKeyboardButton(text="🔤 Lotin -> Кирилл", callback_data='crill'),
         InlineKeyboardButton(text="🔤 Lotin -> Arab", callback_data='arab'),
-        InlineKeyboardButton(text="🔤 Lotin -> Koreys", callback_data='kores')
     ]
 
     # Savollar va takliflar tugmasi
