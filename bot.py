@@ -16,7 +16,7 @@ from filters.admin import IsBotAdminFilter,AdminStates
 from filters.check_sub_channel import IsCheckSubChannels
 from states.reklama import Adverts
 from keyboard_buttons import admin_keyboard
-from criltolatin import latindan_crill, latindan_arab, latindan_kores
+from criltolatin import latindan_crill, latindan_arab
 from aiogram.fsm.state import State, StatesGroup
 from filters.admin import IsBotAdminFilter
 from aiogram import types
@@ -60,7 +60,6 @@ async def start_command(message: Message):
 Bu bot yordamida siz matnlarni turli alfavitlarga <b>transliteratsiya</b> qilishingiz mumkin. Hozirda quyidagi imkoniyatlar mavjud:
 - <b>Latin ➡️ Kirill</b>
 - <b>Latin ➡️ Arab</b>
-- <b>Latin ➡️ Koreys</b>
 
 <b>Qanday boshlash kerak?</b> 
 1️⃣ Matnni kiriting va o'zingiz xohlagan alfavitga transliteratsiya qilish uchun mos buyrug'ini tanlang.
@@ -75,7 +74,6 @@ Agar qo'shimcha yordam kerak bo'lsa, <b>/help</b> buyrug'ini bosing. <b>SIfatDev
 Bu bot yordamida siz matnlarni turli alfavitlarga <b>transliteratsiya</b> qilishingiz mumkin. Hozirda quyidagi imkoniyatlar mavjud:
 - <b>Latin ➡️ Kirill</b>
 - <b>Latin ➡️ Arab</b>
-- <b>Latin ➡️ Koreys</b>
 
 <b>Qanday boshlash kerak?</b> 
 1️⃣ Matnni kiriting va o'zingiz xohlagan alfavitga transliteratsiya qilish uchun mos buyrug'ini tanlang.
@@ -93,7 +91,6 @@ async def help_commands(message: Message):
 Bu bot orqali matnlarni turli alfavitlarga o'gira olasiz. Quyidagi buyruqlardan foydalaning:
 1️⃣ <b>/crill</b> - Latin matnini <b>Kirill</b> alifbosiga o'giradi.
 2️⃣ <b>/arab</b> - Latin matnini <b>Arab</b> alifbosiga o'giradi.
-3️⃣ <b>/kores</b> - Latin matnini <b>Koreys</b> yozuviga o'giradi.
 
 <b>Qanday foydalanish kerak?</b>
 1️⃣ Kerakli buyruqni tanlang.
@@ -110,7 +107,6 @@ async def about_commands(message: Message):
 <b>SIfatDev Transliteratsiya Bot</b> matnlarni bir alfavitdan boshqa alfavitga o'zgartirish uchun yaratilgan. Bu bot sizga quyidagi tillar o'rtasida matn transliteratsiyasini amalga oshirish imkoniyatini beradi:
 - <b>Latin ➡️ Kirill</b>
 - <b>Latin ➡️ Arab</b>
-- <b>Latin ➡️ Koreys</b>
 
 <b>Nega SIfatDev Botni tanlash kerak?</b>
 - Matnlarni tez va aniq transliteratsiya qilish.
@@ -125,7 +121,7 @@ Har qanday savol yoki takliflar uchun biz bilan bog'laning. <b>SifatDev</b> sizg
 """,
  parse_mode='html', reply_markup=get_translation_buttons())
 
-@dp.callback_query(F.data.in_(['crill', 'arab', 'kores', 'cancel']))
+@dp.callback_query(F.data.in_(['crill', 'arab', 'cancel']))
 async def handle_translation_callback(callback: CallbackQuery, state: FSMContext):
     if callback.data == 'cancel':
         # Bekor qilish haqida xabar yuborish va tilni qayta tanlash tugmalarini ko'rsatish
@@ -156,8 +152,6 @@ async def handle_text_input(message: Message, state: FSMContext):
         result_text = latindan_crill(input_text)
     elif translation_type == 'arab':
         result_text = latindan_arab(input_text)
-    elif translation_type == 'kores':
-        result_text = latindan_kores(input_text)
     else:
         result_text = "<b>⚠️ Noma'lum tarjima turi.</b>"
 
@@ -170,6 +164,7 @@ async def handle_text_input(message: Message, state: FSMContext):
         f"<b>📝 Transliteratsiya natijasi:</b> \n\n{result_text}", 
         reply_markup=keyboard, parse_mode='html'
     )
+
 
 
 @dp.message(IsCheckSubChannels())
@@ -214,10 +209,6 @@ async def send_advert(message: Message, state: FSMContext):
     
     await message.answer(f"Reklama {count} ta foydalanuvchiga yuborildi", parse_mode=ParseMode.HTML)
     await state.clear()
-
-
-
-
 
 
 
